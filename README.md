@@ -8,13 +8,17 @@
 
 ## 界面预览
 
-| 字幕工作台（双语字幕 · 悬停查词 · 点词入卡） | 单词图谱（同根 / 同族 / 形近 / 词形） |
+| 今日（复习进度环 · 本周统计 · 继续学习） | 字幕工作台（双语字幕 · 悬停查词 · 点词入卡） |
 |---|---|
-| ![字幕工作台](docs/screenshots/workbench.png) | ![单词图谱](docs/screenshots/graph.png) |
+| ![今日](docs/screenshots/today.png) | ![字幕工作台](docs/screenshots/workbench.png) |
 
-| 词库（按日期分组 · 进度统计 · AI 小作文） | 复习（四种模式 · 间隔预览） |
+| 词库（按日期分组 · 状态标签页 · AI 小作文 · 迷你复习） | 单词图谱（同根 / 同族 / 形近 / 词形） |
 |---|---|
-| ![词库](docs/screenshots/words.png) | ![复习](docs/screenshots/review.png) |
+| ![词库](docs/screenshots/words.png) | ![单词图谱](docs/screenshots/graph.png) |
+
+| 复习（四种模式 · 间隔预览） | 媒体库 |
+|---|---|
+| ![复习](docs/screenshots/review.png) | ![媒体库](docs/screenshots/library.png) |
 
 ## MVP 能力
 

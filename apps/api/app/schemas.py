@@ -188,6 +188,13 @@ class ReviewQueueItem(BaseModel):
     interval_previews: list[float] = []  # days, [Again, Hard, Good, Easy]
 
 
+class WeekStat(BaseModel):
+    date: str  # YYYY-MM-DD (UTC)
+    new_words: int
+    reviews: int
+    minutes: float = 0
+
+
 class TodayStats(BaseModel):
     due_count: int
     new_count: int
@@ -195,6 +202,8 @@ class TodayStats(BaseModel):
     media_processing: int
     media_ready: int
     recent_media: list[MediaOut]
+    reviews_today: int = 0
+    week: list[WeekStat] = []
 
 
 class GlossaryIn(BaseModel):

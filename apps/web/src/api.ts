@@ -174,6 +174,8 @@ export const api = {
   exportAnkiZip: () => api.downloadBlob("/api/export/anki.zip", "leran_anki.zip"),
   cardAudioUrl: (cardId: number) =>
     `/api/cards/${cardId}/audio?token=${encodeURIComponent(getToken() || "")}`,
+  mediaThumbUrl: (mediaId: number) =>
+    `/api/media/${mediaId}/thumb?token=${encodeURIComponent(getToken() || "")}`,
   lookupWord: (word: string, segmentId?: number, deep = false) =>
     request<{
       word: string;
@@ -383,6 +385,13 @@ export interface ReviewItem {
   interval_previews?: number[]; // days: [Again, Hard, Good, Easy]
 }
 
+export interface WeekStat {
+  date: string;
+  new_words: number;
+  reviews: number;
+  minutes: number;
+}
+
 export interface TodayStats {
   due_count: number;
   new_count: number;
@@ -390,6 +399,8 @@ export interface TodayStats {
   media_processing: number;
   media_ready: number;
   recent_media: MediaItem[];
+  reviews_today: number;
+  week: WeekStat[];
 }
 
 export interface ProviderRow {

@@ -570,47 +570,60 @@ export default function Workbench() {
           </div>
 
           <div className="wb-tools">
-            <button className="btn small" onClick={replay}>
-              重播本句
-            </button>
-            <label className="row" style={{ gap: 6 }}>
-              <input type="checkbox" checked={loop} onChange={(e) => setLoop(e.target.checked)} />
-              句循环
-            </label>
-            <label className="row" style={{ gap: 6 }}>
-              <input
-                type="checkbox"
-                checked={dictation}
-                onChange={(e) => setDictation(e.target.checked)}
-              />
-              听写
-            </label>
-            <label className="row" style={{ gap: 6 }}>
-              字幕
-              <select
-                value={subMode}
-                onChange={(e) => setSubMode(e.target.value as "both" | "en" | "zh" | "off")}
-              >
-                <option value="both">英中双语</option>
-                <option value="en">仅英文</option>
-                <option value="zh">仅中文</option>
-                <option value="off">全隐藏</option>
-              </select>
-            </label>
-            <button
-              className="btn small"
-              onClick={() => {
-                setSubPos({ ...DEFAULT_SUB_POS });
-                localStorage.setItem("leran_sub_pos", JSON.stringify(DEFAULT_SUB_POS));
-              }}
-            >
-              字幕复位
-            </button>
-            {mineMsg && <span>{mineMsg}</span>}
-            <span style={{ flex: 1 }} />
-            <button className="btn btn-fill small" onClick={mine} disabled={!active}>
-              入卡
-            </button>
+            <div className="wb-tool-group">
+              <div className="wb-tool-label">句子播放</div>
+              <div className="row" style={{ gap: 8 }}>
+                <button className="btn small" onClick={replay}>
+                  ▶ 播放本句
+                </button>
+                <label className="row" style={{ gap: 6 }}>
+                  <input type="checkbox" checked={loop} onChange={(e) => setLoop(e.target.checked)} />
+                  循环播放
+                </label>
+                <label className="row" style={{ gap: 6 }}>
+                  <input
+                    type="checkbox"
+                    checked={dictation}
+                    onChange={(e) => setDictation(e.target.checked)}
+                  />
+                  听写模式
+                </label>
+              </div>
+            </div>
+            <div className="wb-tool-div" />
+            <div className="wb-tool-group">
+              <div className="wb-tool-label">字幕显示</div>
+              <div className="row" style={{ gap: 8 }}>
+                <select
+                  value={subMode}
+                  onChange={(e) => setSubMode(e.target.value as "both" | "en" | "zh" | "off")}
+                >
+                  <option value="both">英文 + 中文</option>
+                  <option value="en">仅英文</option>
+                  <option value="zh">仅中文</option>
+                  <option value="off">全隐藏</option>
+                </select>
+                <button
+                  className="btn small"
+                  onClick={() => {
+                    setSubPos({ ...DEFAULT_SUB_POS });
+                    localStorage.setItem("leran_sub_pos", JSON.stringify(DEFAULT_SUB_POS));
+                  }}
+                >
+                  ⟲ 重置字幕
+                </button>
+              </div>
+            </div>
+            <div className="wb-tool-div" />
+            <div className="wb-tool-group">
+              <div className="wb-tool-label">词汇操作</div>
+              <div className="row" style={{ gap: 8 }}>
+                {mineMsg && <span className="small">{mineMsg}</span>}
+                <button className="btn btn-fill small" onClick={mine} disabled={!active}>
+                  ＋ 加入生词本
+                </button>
+              </div>
+            </div>
           </div>
 
           {dictation && active && (

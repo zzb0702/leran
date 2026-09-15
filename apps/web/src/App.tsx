@@ -1,5 +1,14 @@
 import { Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { getToken, setToken } from "./api";
+import {
+  IconBook,
+  IconGear,
+  IconGraph,
+  IconHome,
+  IconLeaf,
+  IconMedia,
+  IconRepeat,
+} from "./icons";
 import Login from "./pages/Login";
 import Today from "./pages/Today";
 import Library from "./pages/Library";
@@ -9,6 +18,15 @@ import Words from "./pages/Words";
 import Graph from "./pages/Graph";
 import Settings from "./pages/Settings";
 
+const NAV = [
+  { to: "/", label: "今日", Icon: IconHome },
+  { to: "/library", label: "媒体库", Icon: IconMedia },
+  { to: "/review", label: "复习", Icon: IconRepeat },
+  { to: "/words", label: "词库", Icon: IconBook },
+  { to: "/graph", label: "图谱", Icon: IconGraph },
+  { to: "/settings", label: "设置", Icon: IconGear },
+];
+
 function Shell() {
   const nav = useNavigate();
   const loc = useLocation();
@@ -17,28 +35,29 @@ function Shell() {
     <div className={`app-shell${immersive ? " shell-immersive" : ""}`}>
       {!immersive && (
         <aside className="sidebar">
-          <div className="brand">Leran</div>
-          <div className="brand-sub">视频词汇笔记</div>
-          <div style={{ height: 10 }} />
-          <NavLink className={({ isActive }) => `nav-link${isActive ? " active" : ""}`} to="/">
-            今日
-          </NavLink>
-          <NavLink className={({ isActive }) => `nav-link${isActive ? " active" : ""}`} to="/library">
-            媒体库
-          </NavLink>
-          <NavLink className={({ isActive }) => `nav-link${isActive ? " active" : ""}`} to="/review">
-            复习
-          </NavLink>
-          <NavLink className={({ isActive }) => `nav-link${isActive ? " active" : ""}`} to="/words">
-            词库
-          </NavLink>
-          <NavLink className={({ isActive }) => `nav-link${isActive ? " active" : ""}`} to="/graph">
-            图谱
-          </NavLink>
-          <NavLink className={({ isActive }) => `nav-link${isActive ? " active" : ""}`} to="/settings">
-            设置
-          </NavLink>
+          <div className="brand">
+            Leran <IconLeaf />
+          </div>
+          <div className="brand-sub">Learn English from Real Videos</div>
+          <div style={{ height: 18 }} />
+          {NAV.map(({ to, label, Icon }) => (
+            <NavLink
+              key={to}
+              className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
+              to={to}
+            >
+              <span className="nav-ic">
+                <Icon />
+              </span>
+              {label}
+            </NavLink>
+          ))}
           <div style={{ flex: 1 }} />
+          <div className="side-quote">
+            “A new word
+            <br />
+            is a new world.”
+          </div>
           <button
             className="btn btn-ghost"
             onClick={() => {

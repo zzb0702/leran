@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -22,6 +22,7 @@ from ..schemas import (
     ReviewSubmit,
     TodayStats,
     MediaOut,
+    WeekStat,
 )
 from ..services.export_cards import (
     build_anki_zip,
@@ -220,6 +221,7 @@ def today_stats(
     user: User = Depends(get_current_user),
 ) -> TodayStats:
     now = datetime.utcnow()
+    day_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     q = db.query(Card).filter(Card.user_id == user.id, Card.suspended.is_(False))
     due = q.filter(Card.due_at <= now, Card.state != "new").count()
     new = q.filter(Card.state == "new").count()
@@ -245,6 +247,44 @@ def today_stats(
         item.segment_count = seg_count
         item.card_count = card_count
         media_outs.append(item)
+
+    reviews_today = (
+        db.query(Review)
+        .join(Card, Review.card_id == Card.id)
+        .filter(Card.user_id == user.id, Review.reviewed_at >= day_start)
+        .count()
+    )
+
+    week: list[WeekStat] = []
+    for offset in range(6, -1, -1):
+        d_start = day_start - timedelta(days=offset)
+        d_end = d_start + timedelta(days=1)
+        new_words = (
+            db.query(Card)
+            .filter(Card.user_id == user.id, Card.created_at >= d_start, Card.created_at < d_end)
+            .count()
+        )
+        rows = (
+            db.query(Review)
+            .join(Card, Review.card_id == Card.id)
+            .filter(
+                Card.user_id == user.id,
+                Review.reviewed_at >= d_start,
+                Review.reviewed_at < d_end,
+            )
+            .with_entities(Review.duration_ms)
+            .all()
+        )
+        minutes = round(sum(r[0] or 0 for r in rows) / 60000.0, 1)
+        week.append(
+            WeekStat(
+                date=d_start.strftime("%Y-%m-%d"),
+                new_words=new_words,
+                reviews=len(rows),
+                minutes=minutes,
+            )
+        )
+
     return TodayStats(
         due_count=due,
         new_count=new,
@@ -252,6 +292,8 @@ def today_stats(
         media_processing=processing,
         media_ready=ready,
         recent_media=media_outs,
+        reviews_today=reviews_today,
+        week=week,
     )
 
 

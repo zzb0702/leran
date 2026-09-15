@@ -545,3 +545,52 @@ def stream_media_file(
         "Content-Length": str(end - start + 1),
     }
     return StreamingResponse(iter_file(), status_code=206, media_type=content_type, headers=headers)
+
+
+@router.get("/{media_id}/thumb")
+def media_thumb(
+    media_id: int,
+    request: Request,
+    token: str = "",
+    db: Session = Depends(get_db),
+):
+    """First-frame JPEG thumbnail (ffmpeg, cached under data/thumbs)."""
+    from fastapi.responses import FileResponse
+
+    from ..services.export_cards import ffmpeg_bin
+
+    user = _user_from_token(db, token)
+    if not user:
+        auth = request.headers.get("Authorization") or ""
+        if auth.lower().startswith("bearer "):
+            user = _user_from_token(db, auth[7:].strip())
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    media = db.get(Media, media_id)
+    if not media or media.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Media not found")
+
+    thumb_dir = Path(settings.media_dir).parent / "thumbs"
+    thumb = thumb_dir / f"{media.id}.jpg"
+    if not thumb.exists():
+        ff = ffmpeg_bin()
+        src = settings.media_dir / media.storage_key
+        if not ff or not src.exists():
+            raise HTTPException(status_code=404, detail="Thumbnail unavailable")
+        thumb_dir.mkdir(parents=True, exist_ok=True)
+        import subprocess
+
+        try:
+            subprocess.run(
+                [
+                    ff, "-y", "-ss", "3", "-i", str(src),
+                    "-frames:v", "1", "-vf", "scale=480:-2", str(thumb),
+                ],
+                check=True,
+                capture_output=True,
+                timeout=60,
+            )
+        except Exception as exc:  # noqa: BLE001
+            raise HTTPException(status_code=500, detail="Thumbnail extraction failed") from exc
+    return FileResponse(thumb, media_type="image/jpeg")
