@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { api, Card, Story } from "../api";
 import { dayKeyLabel, localDayKey, parseCreated } from "../dates";
 
@@ -200,9 +200,10 @@ function MiniReview() {
 }
 
 export default function Words() {
+  const [searchParams] = useSearchParams();
   const [cards, setCards] = useState<Card[]>([]);
   const [tab, setTab] = useState<StatusTab>("all");
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(searchParams.get("q") || "");
   const [error, setError] = useState("");
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
@@ -217,7 +218,8 @@ export default function Words() {
   }
 
   useEffect(() => {
-    load();
+    load(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const groups = useMemo(() => {

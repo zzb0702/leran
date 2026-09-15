@@ -106,13 +106,24 @@ function WeekBars({
   );
 }
 
+function fmtDur(ms: number): string {
+  const s = Math.max(0, Math.round(ms / 1000));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const ss = s % 60;
+  return h > 0
+    ? `${h}:${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`
+    : `${m}:${String(ss).padStart(2, "0")}`;
+}
+
 function MediaCard({ m }: { m: MediaItem }) {
   const ready = m.status === "ready";
   return (
     <div className="media-card">
       <Link to={`/media/${m.id}`} className="media-thumb">
         <img src={api.mediaThumbUrl(m.id)} alt="" loading="lazy" />
-        {!ready && <span className="media-thumb-fallback">{(m.progress || "…").slice(0, 18)}</span>}
+        {m.duration_ms > 0 && <span className="thumb-badge">{fmtDur(m.duration_ms)}</span>}
+        {!ready && <span className="media-thumb-fallback">{(m.progress ?? "…").slice(0, 18)}</span>}
       </Link>
       <div className="media-card-main">
         <Link to={`/media/${m.id}`} className="media-card-title">
@@ -296,7 +307,10 @@ export default function Today() {
           <div className="card-box recent-list">
             {stats.recent_media.slice(0, 4).map((m) => (
               <Link key={m.id} to={`/media/${m.id}`} className="recent-item">
-                <img src={api.mediaThumbUrl(m.id)} alt="" loading="lazy" />
+                <span className="recent-thumb">
+                  <img src={api.mediaThumbUrl(m.id)} alt="" loading="lazy" />
+                  {m.duration_ms > 0 && <span className="thumb-badge">{fmtDur(m.duration_ms)}</span>}
+                </span>
                 <div>
                   <div className="recent-title">{m.title}</div>
                   <div className="muted small">

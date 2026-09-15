@@ -1,4 +1,4 @@
-import { Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { getToken, setToken } from "./api";
 import {
   IconBook,
@@ -17,6 +17,7 @@ import Review from "./pages/Review";
 import Words from "./pages/Words";
 import Graph from "./pages/Graph";
 import Settings from "./pages/Settings";
+import GlobalSearch from "./pages/GlobalSearch";
 
 const NAV = [
   { to: "/", label: "今日", Icon: IconHome },
@@ -69,9 +70,24 @@ function Shell() {
           </button>
         </aside>
       )}
-      <main className="main">
-        <Outlet />
-      </main>
+      {immersive ? (
+        <main className="main">
+          <Outlet />
+        </main>
+      ) : (
+        <div className="main-col">
+          <header className="topbar">
+            <GlobalSearch />
+            <div style={{ flex: 1 }} />
+            <Link to="/library" className="btn btn-fill topbar-upload">
+              ＋ 上传视频
+            </Link>
+          </header>
+          <main className="main">
+            <Outlet />
+          </main>
+        </div>
+      )}
     </div>
   );
 }
