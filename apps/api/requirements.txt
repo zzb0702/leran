@@ -1,0 +1,17 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+sqlalchemy==2.0.36
+pydantic==2.10.4
+pydantic-settings==2.7.0
+python-multipart==0.0.20
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.1
+httpx==0.28.1
+aiofiles==24.1.0
+email-validator==2.2.0
+faster-whisper==1.2.1
+# 4.8.x hangs on model load on this Windows/i9 box; 4.4.0 loads in <1s
+ctranslate2==4.4.0
+# CT2 CUDA needs cuDNN 8 (cudnn_ops_infer64_8.dll), not cuDNN 9
+nvidia-cudnn-cu12==8.9.7.29
