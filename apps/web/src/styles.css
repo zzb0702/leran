@@ -30,8 +30,12 @@
   --shadow: 0 1px 2px rgba(28, 27, 20, 0.04), 0 10px 28px -14px rgba(28, 27, 20, 0.2);
   --shadow-l: 0 2px 4px rgba(28, 27, 20, 0.05), 0 24px 52px -18px rgba(28, 27, 20, 0.28);
 
-  --font: Inter, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-  --serif: "Source Serif 4", Charter, Georgia, "Songti SC", serif;
+  --font: Inter, "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Noto Sans SC",
+    "Microsoft YaHei", sans-serif;
+  /* Latin display words use Source Serif; Chinese glyphs fall through to the
+     sans stack (mockups render Chinese headings/labels as bold sans). */
+  --serif: "Source Serif 4", Charter, Georgia, "PingFang SC", "HarmonyOS Sans SC",
+    "MiSans", "Microsoft YaHei", serif;
 
   --ease: cubic-bezier(0.2, 0.6, 0.2, 1);
 }
@@ -168,9 +172,9 @@ select:focus-visible {
 }
 
 .page-title {
-  font-family: var(--serif);
+  font-family: var(--font);
   font-size: 27px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.01em;
   color: var(--n-900);
   margin: 0 0 6px;
@@ -1113,7 +1117,7 @@ select:focus-visible {
   font-size: 30px;
   font-weight: 700;
   color: var(--n-900);
-  font-family: var(--serif);
+  font-family: var(--font);
 }
 
 .review-stat-div {
@@ -1442,7 +1446,7 @@ select:focus-visible {
 .word-group-day {
   font-weight: 700;
   color: var(--n-900);
-  font-family: var(--serif);
+  font-family: var(--font);
   font-size: 15px;
 }
 

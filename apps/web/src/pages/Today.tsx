@@ -55,7 +55,7 @@ function ProgressRing({ done, total }: { done: number; total: number }) {
         fontSize={40}
         fontWeight={700}
         fill="var(--n-900)"
-        fontFamily="var(--serif)"
+        fontFamily="var(--font)"
       >
         {done}
       </text>
