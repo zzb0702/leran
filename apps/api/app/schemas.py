@@ -68,6 +68,10 @@ class SegmentUpdate(BaseModel):
     end_ms: int | None = None
 
 
+class MediaPatch(BaseModel):
+    title: str = Field(min_length=1, max_length=300)
+
+
 class MediaOut(BaseModel):
     id: int
     title: str

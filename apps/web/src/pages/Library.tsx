@@ -190,6 +190,27 @@ export default function Library() {
                   </button>
                 )}
                 <button
+                  className="btn btn-ghost"
+                  title="重命名"
+                  onClick={async () => {
+                    const name = prompt("修改视频名称", m.title);
+                    if (name === null) return;
+                    const title = name.trim();
+                    if (!title) {
+                      alert("名称不能为空");
+                      return;
+                    }
+                    try {
+                      await api.renameMedia(m.id, title);
+                      refresh();
+                    } catch (e) {
+                      alert(e instanceof Error ? e.message : "重命名失败");
+                    }
+                  }}
+                >
+                  重命名
+                </button>
+                <button
                   className="btn btn-ghost btn-danger"
                   onClick={() => {
                     if (confirm("删除该视频及其字幕？")) {

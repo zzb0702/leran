@@ -18,6 +18,7 @@ from ..db import get_db
 from ..models import Card, Media, Segment, User
 from ..schemas import (
     MediaOut,
+    MediaPatch,
     SegmentOut,
     SegmentUpdate,
     UploadCompleteIn,
@@ -376,6 +377,26 @@ def delete_media(
     db.delete(media)
     db.commit()
     return {"ok": True}
+
+
+@router.patch("/{media_id}", response_model=MediaOut)
+def patch_media(
+    media_id: int,
+    body: MediaPatch,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> MediaOut:
+    """Rename a media item (display title only, files untouched)."""
+    media = db.get(Media, media_id)
+    if not media or media.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Media not found")
+    title = body.title.strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="标题不能为空")
+    media.title = title[:300]
+    db.commit()
+    db.refresh(media)
+    return _media_out(db, media)
 
 
 @router.get("/{media_id}/segments", response_model=list[SegmentOut])

@@ -100,6 +100,8 @@ export const api = {
   uploadLimits: () => request<UploadLimits>("/api/media/limits"),
   reprocess: (id: number) => request<MediaItem>(`/api/media/${id}/reprocess`, { method: "POST" }),
   deleteMedia: (id: number) => request<{ ok: boolean }>(`/api/media/${id}`, { method: "DELETE" }),
+  renameMedia: (id: number, title: string) =>
+    request<MediaItem>(`/api/media/${id}`, { method: "PATCH", body: JSON.stringify({ title }) }),
   segments: (id: number) => request<Segment[]>(`/api/media/${id}/segments`),
   updateSegment: (id: number, body: Partial<{ edited_en: string; edited_zh: string; start_ms: number; end_ms: number }>) =>
     request<Segment>(`/api/media/segments/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
