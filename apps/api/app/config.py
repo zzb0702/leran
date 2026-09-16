@@ -12,7 +12,7 @@ UPLOAD_TMP_DIR = DATA_DIR / "uploads_tmp"
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    app_name: str = "Leran"
+    app_name: str = "WordReel"
     secret_key: str = "dev-secret-change-me"
     access_token_expire_minutes: int = 60 * 24 * 7
     database_url: str = f"sqlite:///{DATA_DIR / 'leran.db'}"

@@ -160,7 +160,7 @@ export default function Today() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    document.title = "Leran — 今日";
+    document.title = "WordReel — 今日";
     api
       .today()
       .then(setStats)

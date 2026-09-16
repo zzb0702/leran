@@ -155,7 +155,7 @@ def test_provider(
             else:
                 provider = MockTranslateProvider()
             out = provider.translate_batch(
-                ["Hello, this is a Leran provider test."],
+                ["Hello, this is a WordReel provider test."],
                 context_before=[],
                 context_after=[],
                 glossary=None,

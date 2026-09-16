@@ -40,7 +40,7 @@ function Shell() {
       {!immersive && (
         <aside className="sidebar">
           <div className="brand">
-            Leran <IconLeaf />
+            WordReel <IconLeaf />
           </div>
           <div className="brand-sub">Learn English from Real Videos</div>
           <div style={{ height: 18 }} />

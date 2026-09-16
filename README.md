@@ -1,4 +1,4 @@
-# Leran
+# WordReel
 
 用真实英语视频学单词，并输出中英双语字幕。
 
@@ -76,7 +76,7 @@ npm run dev
 3. 悬停单词约 1 秒 → 查词卡（ECDICT 离线释义）→「入卡」；`A` 整句首词入卡；`S` 收藏本句到句库。
 4. 「复习」页 Space 揭晓，1–4 评分；词库页可「复习本组」只练某天的词。
 5. 词库页 →「AI 小作文」→ 用当天新词生成一篇带中文翻译的短文。
-6. 导出双语 SRT / Anki ZIP（含音频，`leran_cards.tsv` + `card_*.mp3`）/ CSV。
+6. 导出双语 SRT / Anki ZIP（含音频，`wordreel_cards.tsv` + `card_*.mp3`）/ CSV。
 7. 工作台勾选「听写模式」→ 听句输入英文 → 对照。
 
 ### 本地 Distil / Turbo（GPU 已打通）

@@ -1,6 +1,6 @@
 # 开源竞品调研 — 双语字幕 + 记单词
 
-> 调研时间：2026-09 · 目的：看别人怎么拆问题，校准 Leran 的产品与技术选型。  
+> 调研时间：2026-09 · 目的：看别人怎么拆问题，校准 WordReel 的产品与技术选型。  
 > 来源：GitHub API 检索 + 已知高星仓库元数据（star 为查询时快照）。
 
 ---
@@ -15,7 +15,7 @@
 | **挖矿/制卡** | asbplayer, mpvacious, movies2anki | **已有字幕** 的视频 | Anki 卡片（含音频截图） | 不生成字幕；依赖外部 Anki |
 | **语言学习播放器** | LLPlayer, SuViPlayer, voracious | 已有字幕 | 播放时点词/循环/查词 | 多是桌面端；复习很弱或外挂 |
 
-**对 Leran 的含义：**  
+**对 WordReel 的含义：**  
 我们做的「双核闭环」不是已经饱和的红海，而是把上面三类的断点接起来。差异化不在「再写一个 Whisper wrapper」，而在：
 
 1. **字幕是学习语料的中间态**，不是终点成片（和搬运字幕组工具不同）。
@@ -48,7 +48,7 @@
   → （可选）TTS 配音 / 烧录
 ```
 
-**和 Leran 的差异：**  
+**和 WordReel 的差异：**  
 它们服务「搬运/本地化成片」。我们只需要到「可编辑双语字幕 + 可入卡」，**不要** MVP 做配音、烧录、说话人克隆。但 **切割 + 分批上下文翻译 + 重跑单段** 必须抄作业。
 
 ### 2.2 挖矿 / 制卡（解决「字幕 → 单词/句子卡」）
@@ -64,10 +64,10 @@
 
 - 卡片必须带 **原句、音频切片、可选截图、时间戳**，否则脱离语境等于退回词书。
 - 挖矿发生在 **播放当前句** 时，而不是事后在词库里手输。
-- 社区默认出口是 Anki；Leran 要么内置 SRS，要么 **双出口**（内置复习 + Anki 导出）。
+- 社区默认出口是 Anki；WordReel 要么内置 SRS，要么 **双出口**（内置复习 + Anki 导出）。
 
-**和 Leran 的差异：**  
-它们假设字幕已存在。Leran 要把「造字幕」和「挖词」接在同一个工作台里，避免用户先跑 pyvideotrans 再开 asbplayer。
+**和 WordReel 的差异：**  
+它们假设字幕已存在。WordReel 要把「造字幕」和「挖词」接在同一个工作台里，避免用户先跑 pyvideotrans 再开 asbplayer。
 
 ### 2.3 语言学习播放器（解决「播放时怎么学」）
 
@@ -80,7 +80,7 @@
 **可借鉴：**  
 A-B 循环、当前句高亮、点词弹词典、生词本列表——这些是「90% 时间用户在的状态」，比花哨首页重要。LLPlayer 把 AI 字幕做进播放器，说明用户要的是 **边看边处理**，不是永远停留在上传页。
 
-### 2.4 最接近 Leran 理念的「缝合怪」
+### 2.4 最接近 WordReel 理念的「缝合怪」
 
 | 项目 | 说明 |
 |------|------|
@@ -102,7 +102,7 @@ A-B 循环、当前句高亮、点词弹词典、生词本列表——这些是�
 | 翻译 | OpenAI 兼容 API / DeepL / Gemini / Ollama | 分批 + 上下文；术语表 |
 | 双语合并 | 自写 SRT 合并（en 上 zh 下） | 格式简单，别引入重型字幕编辑器 |
 | 制卡出口 | AnkiConnect / CSV / 内置 FSRS | 我们内置 + 导出 |
-| UI 形态 | 多数桌面 GUI；Web 学习产品稀缺 | Leran 选 Web 是差异也是风险（大文件上传） |
+| UI 形态 | 多数桌面 GUI；Web 学习产品稀缺 | WordReel 选 Web 是差异也是风险（大文件上传） |
 
 **本地 ASR：** faster-whisper 是当前质量/速度共识；Windows 打包可参考 whisper-standalone-win / faster-whisper-GUI 的依赖方式，但 **应用层只依赖 Provider 接口**，不要绑死某个 GUI。
 
@@ -155,7 +155,7 @@ A-B 循环、当前句高亮、点词弹词典、生词本列表——这些是�
   做成片/搬运            │  pyvideotrans / VideoLingo    │  DualSubs（劫持已有轨）
                          │  jzsub / GPT_subtitles        │
                          │                              │
-  做学习闭环             │  ★ Leran 的目标空档 ★        │  asbplayer / mpvacious
+  做学习闭环             │  ★ WordReel 的目标空档 ★        │  asbplayer / mpvacious
                          │  （Web 工作台 + 内置 SRS）    │  movies2anki → Anki
                          │                              │  LLPlayer / SuViPlayer
                          │                              │  LinguaReel（Obsidian+FSRS）
@@ -171,7 +171,7 @@ A-B 循环、当前句高亮、点词弹词典、生词本列表——这些是�
 4. **whisperX** README 中 word timestamps 输出格式 — 学数据结构。  
 5. **pyvideotrans** 的 Provider 配置面 — 学「可切换云厂商」如何做用户设置。
 
-不必整仓 fork；Leran 自建 Web 产品，零件级借鉴即可。注意许可证：pyvideotrans 为 GPL-3.0，**不要直接拷贝其代码进商业闭源**；VideoLingo Apache-2.0、whisperX BSD-2、asbplayer 需再核对具体 license 后再引用代码。
+不必整仓 fork；WordReel 自建 Web 产品，零件级借鉴即可。注意许可证：pyvideotrans 为 GPL-3.0，**不要直接拷贝其代码进商业闭源**；VideoLingo Apache-2.0、whisperX BSD-2、asbplayer 需再核对具体 license 后再引用代码。
 
 ---
 

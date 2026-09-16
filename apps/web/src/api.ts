@@ -187,9 +187,9 @@ export const api = {
     a.click();
     URL.revokeObjectURL(url);
   },
-  exportCardsCsv: () => api.downloadBlob("/api/export/cards.csv", "leran_cards.csv"),
-  exportAnkiTsv: () => api.downloadBlob("/api/export/anki.tsv", "leran_cards.tsv"),
-  exportAnkiZip: () => api.downloadBlob("/api/export/anki.zip", "leran_anki.zip"),
+  exportCardsCsv: () => api.downloadBlob("/api/export/cards.csv", "wordreel_cards.csv"),
+  exportAnkiTsv: () => api.downloadBlob("/api/export/anki.tsv", "wordreel_cards.tsv"),
+  exportAnkiZip: () => api.downloadBlob("/api/export/anki.zip", "wordreel_anki.zip"),
   cardAudioUrl: (cardId: number) =>
     `/api/cards/${cardId}/audio?token=${encodeURIComponent(getToken() || "")}`,
   mediaThumbUrl: (mediaId: number) =>

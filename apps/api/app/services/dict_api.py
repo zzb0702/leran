@@ -15,7 +15,7 @@ _CACHE: dict[str, dict] = {}
 _LOCK = threading.Lock()
 _CACHE_PATH = Path(settings.media_dir).parent / "dict_cache.json"
 
-_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) LeranDict/0.1"
+_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) WordReelDict/0.1"
 
 
 def _load_disk_cache() -> None:

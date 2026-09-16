@@ -624,7 +624,7 @@ def export_cards_csv(
     return Response(
         cards_to_csv(cards),
         media_type="text/csv; charset=utf-8",
-        headers={"Content-Disposition": 'attachment; filename="leran_cards.csv"'},
+        headers={"Content-Disposition": 'attachment; filename="wordreel_cards.csv"'},
     )
 
 
@@ -642,7 +642,7 @@ def export_anki_tsv(
     return Response(
         cards_to_anki_tsv(cards),
         media_type="text/tab-separated-values; charset=utf-8",
-        headers={"Content-Disposition": 'attachment; filename="leran_cards.tsv"'},
+        headers={"Content-Disposition": 'attachment; filename="wordreel_cards.tsv"'},
     )
 
 
@@ -667,7 +667,7 @@ def export_anki_zip(
     return Response(
         payload,
         media_type="application/zip",
-        headers={"Content-Disposition": 'attachment; filename="leran_anki.zip"'},
+        headers={"Content-Disposition": 'attachment; filename="wordreel_anki.zip"'},
     )
 
 

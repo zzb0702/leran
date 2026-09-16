@@ -30,7 +30,7 @@ export default function Login() {
   return (
     <div className="auth-wrap">
       <form className="auth-card" onSubmit={onSubmit}>
-        <h1 className="page-title">Leran</h1>
+        <h1 className="page-title">WordReel</h1>
         <p className="page-sub">用真实英语视频学单词，并导出中英双语字幕。</p>
         <div className="field">
           <label>邮箱</label>

@@ -1,4 +1,4 @@
-# Start Leran API + Web (Windows PowerShell)
+# Start WordReel API + Web (Windows PowerShell)
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 
