@@ -7,6 +7,7 @@ export default function GlobalSearch() {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [words, setWords] = useState<Card[]>([]);
+  const [sentences, setSentences] = useState<Card[]>([]);
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -49,6 +50,7 @@ export default function GlobalSearch() {
     const term = q.trim();
     if (!term) {
       setWords([]);
+      setSentences([]);
       setMedia([]);
       return;
     }
@@ -56,7 +58,8 @@ export default function GlobalSearch() {
     const t = window.setTimeout(async () => {
       try {
         const [cards, media] = await Promise.all([api.listCards(term), api.listMedia()]);
-        setWords(cards.slice(0, 6));
+        setWords(cards.filter((c) => (c.card_type || "word") === "word").slice(0, 6));
+        setSentences(cards.filter((c) => c.card_type === "sentence").slice(0, 4));
         setMedia(
           media
             .filter((m) => m.title.toLowerCase().includes(term.toLowerCase()))
@@ -71,7 +74,7 @@ export default function GlobalSearch() {
     return () => window.clearTimeout(t);
   }, [q]);
 
-  const hasResults = words.length > 0 || media.length > 0;
+  const hasResults = words.length > 0 || sentences.length > 0 || media.length > 0;
 
   return (
     <div className="gs-wrap" ref={boxRef}>
@@ -103,6 +106,18 @@ export default function GlobalSearch() {
             >
               <span className="gs-word">{w.headword}</span>
               <span className="gs-sub">{w.meaning_zh}</span>
+            </Link>
+          ))}
+          {sentences.length > 0 && <div className="gs-group">句库</div>}
+          {sentences.map((s) => (
+            <Link
+              key={s.id}
+              to={`/sentences?q=${encodeURIComponent(s.headword.slice(0, 40))}`}
+              className="gs-row"
+              onClick={() => setOpen(false)}
+            >
+              <span className="gs-word">{s.headword}</span>
+              <span className="gs-sub">{s.meaning_zh}</span>
             </Link>
           ))}
           {media.length > 0 && <div className="gs-group">视频</div>}

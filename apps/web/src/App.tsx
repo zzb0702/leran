@@ -7,6 +7,7 @@ import {
   IconHome,
   IconLeaf,
   IconMedia,
+  IconQuote,
   IconRepeat,
 } from "./icons";
 import Login from "./pages/Login";
@@ -15,6 +16,7 @@ import Library from "./pages/Library";
 import Workbench from "./pages/Workbench";
 import Review from "./pages/Review";
 import Words from "./pages/Words";
+import Sentences from "./pages/Sentences";
 import Graph from "./pages/Graph";
 import Settings from "./pages/Settings";
 import GlobalSearch from "./pages/GlobalSearch";
@@ -24,6 +26,7 @@ const NAV = [
   { to: "/library", label: "媒体库", Icon: IconMedia },
   { to: "/review", label: "复习", Icon: IconRepeat },
   { to: "/words", label: "词库", Icon: IconBook },
+  { to: "/sentences", label: "句库", Icon: IconQuote },
   { to: "/graph", label: "图谱", Icon: IconGraph },
   { to: "/settings", label: "设置", Icon: IconGear },
 ];
@@ -107,6 +110,7 @@ export default function App() {
         <Route path="/media/:id" element={<Workbench />} />
         <Route path="/review" element={<Review />} />
         <Route path="/words" element={<Words />} />
+        <Route path="/sentences" element={<Sentences />} />
         <Route path="/graph" element={<Graph />} />
         <Route path="/settings" element={<Settings />} />
       </Route>

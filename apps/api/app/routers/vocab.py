@@ -98,7 +98,11 @@ def lookup_word(
 
     card = (
         db.query(Card)
-        .filter(Card.user_id == user.id, Card.headword == headword)
+        .filter(
+            Card.user_id == user.id,
+            Card.card_type == "word",
+            Card.headword == headword,
+        )
         .first()
     )
     if card and card.meaning_zh:
@@ -261,7 +265,12 @@ def today_stats(
         d_end = d_start + timedelta(days=1)
         new_words = (
             db.query(Card)
-            .filter(Card.user_id == user.id, Card.created_at >= d_start, Card.created_at < d_end)
+            .filter(
+                Card.user_id == user.id,
+                Card.card_type == "word",
+                Card.created_at >= d_start,
+                Card.created_at < d_end,
+            )
             .count()
         )
         rows = (
@@ -328,19 +337,49 @@ def create_deck(
     return item
 
 
+def _normalize_sentence(text: str) -> str:
+    return " ".join((text or "").split())
+
+
+def _clip_audio_for_card(db: Session, user: User, card: Card) -> None:
+    """Best-effort audio clip for review playback / Anki package."""
+    if card.media_id is None or not ffmpeg_bin():
+        return
+    media = db.get(Media, card.media_id)
+    seg = db.get(Segment, card.segment_id) if card.segment_id else None
+    if not media or media.user_id != user.id:
+        return
+    end_ms = seg.end_ms if seg else card.t_ms + 2500
+    clip = extract_audio_clip(media, card.t_ms, end_ms)
+    if clip:
+        card.audio_clip_key = str(clip.relative_to(settings.clip_dir)).replace("\\", "/")
+        db.commit()
+        db.refresh(card)
+
+
 @router.get("/cards", response_model=list[CardOut])
 def list_cards(
     deck_id: int | None = None,
     q: str = "",
+    card_type: str = "",
+    segment_id: int | None = None,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ) -> list[CardOut]:
     query = db.query(Card).filter(Card.user_id == user.id)
     if deck_id:
         query = query.filter(Card.deck_id == deck_id)
+    if card_type:
+        query = query.filter(Card.card_type == card_type)
+    if segment_id:
+        query = query.filter(Card.segment_id == segment_id)
     if q:
         like = f"%{q.lower()}%"
-        query = query.filter(Card.headword.ilike(like))
+        query = query.filter(
+            (Card.headword.ilike(like))
+            | (Card.meaning_zh.ilike(like))
+            | (Card.example_en.ilike(like))
+        )
     rows = query.order_by(Card.updated_at.desc()).limit(500).all()
     return [CardOut.model_validate(c) for c in rows]
 
@@ -351,13 +390,25 @@ def create_card(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ) -> CardOut:
-    headword = body.headword.strip().lower()
+    card_type = "sentence" if body.card_type == "sentence" else "word"
+    if card_type == "sentence":
+        headword = _normalize_sentence(body.headword)
+        match_headword = headword.lower()
+    else:
+        headword = body.headword.strip().lower()
+        match_headword = headword
     if not headword:
         raise HTTPException(status_code=400, detail="headword required")
+    if card_type == "sentence" and len(headword) > 500:
+        raise HTTPException(status_code=400, detail="句子过长（>500字符）")
 
     existing = (
         db.query(Card)
-        .filter(Card.user_id == user.id, Card.headword == headword)
+        .filter(
+            Card.user_id == user.id,
+            Card.card_type == card_type,
+            Card.headword.ilike(match_headword),
+        )
         .first()
     )
     if existing:
@@ -365,6 +416,8 @@ def create_card(
             existing.example_en = body.example_en
         if body.example_zh and not existing.example_zh:
             existing.example_zh = body.example_zh
+        if body.meaning_zh and not existing.meaning_zh:
+            existing.meaning_zh = body.meaning_zh
         if body.segment_id and not existing.segment_id:
             existing.segment_id = body.segment_id
             existing.media_id = body.media_id
@@ -379,10 +432,11 @@ def create_card(
     card = Card(
         user_id=user.id,
         deck_id=deck_id,
+        card_type=card_type,
         headword=headword,
         pos=body.pos,
         meaning_zh=body.meaning_zh,
-        example_en=body.example_en,
+        example_en=body.example_en or (headword if card_type == "sentence" else ""),
         example_zh=body.example_zh,
         media_id=body.media_id,
         segment_id=body.segment_id,
@@ -393,19 +447,7 @@ def create_card(
     db.add(card)
     db.commit()
     db.refresh(card)
-
-    # Best-effort audio clip for review playback / Anki package.
-    if card.media_id is not None and ffmpeg_bin():
-        media = db.get(Media, card.media_id)
-        seg = db.get(Segment, card.segment_id) if card.segment_id else None
-        if media and media.user_id == user.id:
-            end_ms = seg.end_ms if seg else card.t_ms + 2500
-            clip = extract_audio_clip(media, card.t_ms, end_ms)
-            if clip:
-                card.audio_clip_key = str(clip.relative_to(settings.clip_dir)).replace("\\", "/")
-                db.commit()
-                db.refresh(card)
-
+    _clip_audio_for_card(db, user, card)
     return CardOut.model_validate(card)
 
 
@@ -422,9 +464,29 @@ def card_from_segment(
     if not media or media.user_id != user.id:
         raise HTTPException(status_code=404, detail="Segment not found")
 
+    if body.card_type == "sentence":
+        headword = _normalize_sentence(seg.text_en)
+        meaning = body.meaning_zh.strip() or seg.text_zh
+        return create_card(
+            CardCreate(
+                headword=headword,
+                card_type="sentence",
+                meaning_zh=meaning,
+                example_en=seg.text_en,
+                example_zh=seg.text_zh,
+                media_id=seg.media_id,
+                segment_id=seg.id,
+                t_ms=seg.start_ms,
+            ),
+            db=db,
+            user=user,
+        )
+
     headword = body.headword.strip().lower()
     meaning = body.meaning_zh
     pos = body.pos
+    if not headword:
+        raise HTTPException(status_code=400, detail="headword required")
     if not meaning:
         try:
             enrich = resolve_enrich(db, user)
@@ -437,6 +499,7 @@ def card_from_segment(
     return create_card(
         CardCreate(
             headword=headword,
+            card_type="word",
             meaning_zh=meaning,
             pos=pos,
             example_en=seg.text_en,

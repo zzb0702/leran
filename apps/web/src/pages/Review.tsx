@@ -78,9 +78,11 @@ export default function Review() {
 
   const item = queue[0];
   const card = item?.card;
+  const isSentence = card?.card_type === "sentence";
   const totalLeft = session.done + queue.length;
   const typedCorrect =
     !!card && typedSubmitted && typed.trim().toLowerCase() === card.headword.toLowerCase();
+  const displayMode: Mode = isSentence && mode === "spell" ? "std" : mode;
 
   async function load() {
     try {
@@ -200,16 +202,17 @@ export default function Review() {
       </p>
 
       <div className="row" style={{ gap: 6, marginBottom: 8 }}>
-        {MODES.map((m) => (
+        {MODES.filter((m) => !(isSentence && m.id === "spell")).map((m) => (
           <button
             key={m.id}
-            className={`btn small${mode === m.id ? " btn-fill" : ""}`}
+            className={`btn small${displayMode === m.id ? " btn-fill" : ""}`}
             onClick={() => setMode(m.id)}
             title={m.hint}
           >
             {m.label}
           </button>
         ))}
+        {isSentence && <span className="muted small">句卡 · 拼写模式不适用</span>}
       </div>
 
       {day && (
@@ -267,27 +270,29 @@ export default function Review() {
           <div className="review-stage">
             <div>
               {/* —— front side by mode —— */}
-              {mode === "std" && (
+              {displayMode === "std" && (
                 <>
-                  <div className="review-word">{card.headword}</div>
-                  {card.pos && <div className="muted">{card.pos}</div>}
+                  <div className={`review-word${isSentence ? " sentence" : ""}`}>
+                    {card.headword}
+                  </div>
+                  {card.pos && !isSentence && <div className="muted">{card.pos}</div>}
                   {audioBlock}
                 </>
               )}
 
-              {mode === "rev" && (
+              {displayMode === "rev" && (
                 <>
-                  <div className="review-word" style={{ fontSize: 30 }}>
+                  <div className="review-word" style={{ fontSize: isSentence ? 28 : 30 }}>
                     {card.meaning_zh || "（暂无释义）"}
                   </div>
-                  {card.pos && <div className="muted small">词性 {card.pos}</div>}
+                  {card.pos && !isSentence && <div className="muted small">词性 {card.pos}</div>}
                 </>
               )}
 
-              {mode === "listen" && (
+              {displayMode === "listen" && (
                 <>
                   <div className="review-word" style={{ fontSize: 26, color: "var(--n-500)" }}>
-                    🎧 听音辨词
+                    🎧 {isSentence ? "听音辨句" : "听音辨词"}
                   </div>
                   {audioBlock ? (
                     <p className="muted small" style={{ marginTop: 10 }}>
@@ -295,13 +300,13 @@ export default function Review() {
                     </p>
                   ) : (
                     <p className="muted small" style={{ marginTop: 10 }}>
-                      这张卡没有音频切片（入卡时未装 ffmpeg），本次直接显示单词
+                      这张卡没有音频切片（入卡时未装 ffmpeg），本次直接显示{isSentence ? "句子" : "单词"}
                     </p>
                   )}
                 </>
               )}
 
-              {mode === "spell" && !typedSubmitted && (
+              {displayMode === "spell" && !typedSubmitted && (
                 <>
                   <div className="review-word" style={{ fontSize: 30 }}>
                     {card.meaning_zh || "（暂无释义）"}
@@ -352,9 +357,9 @@ export default function Review() {
               )}
 
               {/* —— reveal —— */}
-              {(revealed || (mode === "spell" && typedSubmitted)) && (
+              {(revealed || (displayMode === "spell" && typedSubmitted)) && (
                 <>
-                  {mode === "spell" ? (
+                  {displayMode === "spell" ? (
                     <div style={{ marginTop: 18 }}>
                       <div style={{ marginBottom: 8 }}>
                         <DiffText typed={typed} target={card.headword} />
@@ -366,12 +371,15 @@ export default function Review() {
                     </div>
                   ) : (
                     <>
-                      {mode !== "std" && (
-                        <div className="review-word" style={{ marginTop: 16 }}>
+                      {displayMode !== "std" && (
+                        <div
+                          className={`review-word${isSentence ? " sentence" : ""}`}
+                          style={{ marginTop: 16 }}
+                        >
                           {card.headword}
                         </div>
                       )}
-                      {mode === "std" ? (
+                      {displayMode === "std" ? (
                         <div className="review-meaning">
                           {card.meaning_zh || card.example_zh || "（暂无释义）"}
                         </div>
@@ -380,13 +388,18 @@ export default function Review() {
                           {card.meaning_zh}
                         </div>
                       )}
-                      {mode === "listen" && !audioOk && card.audio_clip_key && (
-                        <div className="review-word" style={{ marginTop: 16 }}>{card.headword}</div>
+                      {displayMode === "listen" && !audioOk && card.audio_clip_key && (
+                        <div
+                          className={`review-word${isSentence ? " sentence" : ""}`}
+                          style={{ marginTop: 16 }}
+                        >
+                          {card.headword}
+                        </div>
                       )}
                     </>
                   )}
-                  {card.example_en && <p className="review-example">{card.example_en}</p>}
-                  {card.example_zh && <p className="review-example">{card.example_zh}</p>}
+                  {!isSentence && card.example_en && <p className="review-example">{card.example_en}</p>}
+                  {!isSentence && card.example_zh && <p className="review-example">{card.example_zh}</p>}
                   <div className="muted small" style={{ marginTop: 4 }}>
                     间隔 {fmtInterval(card.interval_days ?? 0)} · 难度{" "}
                     {(card.ease ?? 2.5).toFixed(2)} · 遗忘 {card.lapses ?? 0} 次 · 已学{" "}
@@ -404,7 +417,7 @@ export default function Review() {
                     </Link>
                   )}
 
-                  {!revealed && mode === "spell" && (
+                  {!revealed && displayMode === "spell" && (
                     <div className="kbd-row">
                       <button className="kbd" onClick={() => setRevealed(true)}>
                         看完整卡片 · Space
@@ -429,7 +442,7 @@ export default function Review() {
                 </>
               )}
 
-              {mode !== "spell" && !revealed && (
+              {displayMode !== "spell" && !revealed && (
                 <button
                   className="btn"
                   style={{ marginTop: 26 }}

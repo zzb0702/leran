@@ -76,6 +76,7 @@ def cards_to_csv(cards: list[Card]) -> str:
     writer = csv.writer(buf)
     writer.writerow(
         [
+            "card_type",
             "headword",
             "meaning_zh",
             "example_en",
@@ -91,6 +92,7 @@ def cards_to_csv(cards: list[Card]) -> str:
     for c in cards:
         writer.writerow(
             [
+                getattr(c, "card_type", "word") or "word",
                 c.headword,
                 c.meaning_zh,
                 c.example_en,

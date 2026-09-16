@@ -27,16 +27,22 @@ def _sqlite_add_columns() -> None:
     if not settings.database_url.startswith("sqlite"):
         return
     with engine.begin() as conn:
-        cols = {
+        media_cols = {
             row[1]
             for row in conn.execute(text("PRAGMA table_info(media)")).fetchall()
         }
-        if cols and "file_size" not in cols:
+        if media_cols and "file_size" not in media_cols:
             conn.execute(text("ALTER TABLE media ADD COLUMN file_size INTEGER DEFAULT 0"))
-        if cols and "audio_storage_key" not in cols:
+        if media_cols and "audio_storage_key" not in media_cols:
             conn.execute(text("ALTER TABLE media ADD COLUMN audio_storage_key VARCHAR(512) DEFAULT ''"))
-        if cols and "progress" not in cols:
+        if media_cols and "progress" not in media_cols:
             conn.execute(text("ALTER TABLE media ADD COLUMN progress VARCHAR(255) DEFAULT ''"))
+        card_cols = {
+            row[1]
+            for row in conn.execute(text("PRAGMA table_info(cards)")).fetchall()
+        }
+        if card_cols and "card_type" not in card_cols:
+            conn.execute(text("ALTER TABLE cards ADD COLUMN card_type VARCHAR(16) DEFAULT 'word'"))
 
 
 def init_db() -> None:

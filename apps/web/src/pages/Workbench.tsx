@@ -26,6 +26,7 @@ export default function Workbench() {
   const [error, setError] = useState("");
   const [loop, setLoop] = useState(false);
   const [mineMsg, setMineMsg] = useState("");
+  const [collectedSegs, setCollectedSegs] = useState<Set<number>>(new Set());
   const [dictation, setDictation] = useState(false);
   const [typed, setTyped] = useState("");
   const [dictationResult, setDictationResult] = useState<null | boolean>(null);
@@ -232,6 +233,16 @@ export default function Workbench() {
         setEditEn(segs[0].text_en);
         setEditZh(segs[0].text_zh);
       }
+      void api
+        .listCards("", "sentence")
+        .then((cards) => {
+          const ids = new Set<number>();
+          for (const c of cards) {
+            if (c.media_id === mediaId && c.segment_id) ids.add(c.segment_id);
+          }
+          setCollectedSegs(ids);
+        })
+        .catch(() => undefined);
     } catch (e) {
       setError(e instanceof Error ? e.message : "加载失败");
     }
@@ -314,6 +325,9 @@ export default function Workbench() {
       } else if (e.key === "a" || e.key === "A") {
         e.preventDefault();
         void mine();
+      } else if (e.key === "s" || e.key === "S") {
+        e.preventDefault();
+        void mineSentence();
       }
     }
     window.addEventListener("keydown", onKey);
@@ -395,6 +409,23 @@ export default function Workbench() {
     }
   }
 
+  async function mineSentence() {
+    if (!active) return;
+    if (!active.text_en.trim()) {
+      setMineMsg("当前句没有英文文本");
+      setTimeout(() => setMineMsg(""), 2000);
+      return;
+    }
+    try {
+      await api.sentenceFromSegment(active.id);
+      setCollectedSegs((prev) => new Set(prev).add(active.id));
+      setMineMsg("已收藏本句");
+      setTimeout(() => setMineMsg(""), 2000);
+    } catch (e) {
+      setMineMsg(e instanceof Error ? e.message : "收藏失败");
+    }
+  }
+
   const words = useMemo(() => {
     if (active?.words?.length) return active.words.map((w) => w.text);
     return (active?.text_en || "").split(/\s+/).filter(Boolean);
@@ -433,7 +464,7 @@ export default function Workbench() {
           </h1>
           <p className="page-sub" style={{ marginBottom: 0 }}>
             {media.status === "ready"
-              ? "J/K 换句 · L 重播 · A 入卡 · 悬停 3 秒查词"
+              ? "J/K 换句 · L 重播 · A 入卡 · S 收藏本句 · 悬停查词"
               : `处理中：${media.status}${media.progress ? ` · ${media.progress}` : ""}`}
           </p>
         </div>
@@ -616,12 +647,22 @@ export default function Workbench() {
             </div>
             <div className="wb-tool-div" />
             <div className="wb-tool-group">
-              <div className="wb-tool-label">词汇操作</div>
-              <div className="row" style={{ gap: 8 }}>
+              <div className="wb-tool-label">入卡</div>
+              <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
                 {mineMsg && <span className="small">{mineMsg}</span>}
                 <button className="btn btn-fill small" onClick={mine} disabled={!active}>
                   ＋ 加入生词本
                 </button>
+                <button
+                  className="btn small"
+                  onClick={mineSentence}
+                  disabled={!active || !!active && collectedSegs.has(active.id)}
+                >
+                  {active && collectedSegs.has(active.id) ? "✓ 已收藏本句" : "☆ 收藏本句"}
+                </button>
+                <Link className="btn btn-ghost small" to="/sentences">
+                  句库 →
+                </Link>
               </div>
             </div>
           </div>
@@ -682,10 +723,17 @@ export default function Workbench() {
           {segments.map((s, i) => (
             <div
               key={s.id}
-              className={`wb-cue${i === activeIdx ? " active" : ""}`}
+              className={`wb-cue${i === activeIdx ? " active" : ""}${collectedSegs.has(s.id) ? " collected" : ""}`}
               onClick={() => jump(i)}
             >
-              <div className="wb-cue-time">{fmt(s.start_ms)}</div>
+              <div className="wb-cue-time">
+                {fmt(s.start_ms)}
+                {collectedSegs.has(s.id) && (
+                  <span className="wb-cue-star" title="已收藏本句">
+                    ★
+                  </span>
+                )}
+              </div>
               <div className="wb-cue-en">
                 {dictation && i === activeIdx ? "（听写中…）" : s.text_en}
               </div>

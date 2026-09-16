@@ -121,12 +121,28 @@ export const api = {
     a.click();
     URL.revokeObjectURL(url);
   },
-  cardFromSegment: (segment_id: number, headword: string, meaning_zh = "", pos = "") =>
+  cardFromSegment: (
+    segment_id: number,
+    headword: string,
+    meaning_zh = "",
+    pos = "",
+    card_type: "word" | "sentence" = "word",
+  ) =>
     request<Card>("/api/cards/from-segment", {
       method: "POST",
-      body: JSON.stringify({ segment_id, headword, meaning_zh, pos }),
+      body: JSON.stringify({ segment_id, headword, meaning_zh, pos, card_type }),
     }),
-  listCards: (q = "") => request<Card[]>(`/api/cards?q=${encodeURIComponent(q)}`),
+  sentenceFromSegment: (segment_id: number) =>
+    request<Card>("/api/cards/from-segment", {
+      method: "POST",
+      body: JSON.stringify({ segment_id, card_type: "sentence" }),
+    }),
+  listCards: (q = "", cardType?: "word" | "sentence") =>
+    request<Card[]>(
+      `/api/cards?q=${encodeURIComponent(q)}${
+        cardType ? `&card_type=${cardType}` : ""
+      }`,
+    ),
   deleteCard: (id: number) => request<{ ok: boolean }>(`/api/cards/${id}`, { method: "DELETE" }),
   createCard: (body: { headword: string; meaning_zh?: string; pos?: string }) =>
     request<Card>("/api/cards", { method: "POST", body: JSON.stringify(body) }),
@@ -318,6 +334,7 @@ export interface Segment {
 export interface Card {
   id: number;
   deck_id: number;
+  card_type?: "word" | "sentence";
   headword: string;
   pos: string;
   ipa: string;

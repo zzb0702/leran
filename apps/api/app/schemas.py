@@ -130,6 +130,7 @@ class DeckCreate(BaseModel):
 class CardOut(BaseModel):
     id: int
     deck_id: int
+    card_type: str = "word"
     headword: str
     pos: str
     ipa: str
@@ -156,6 +157,7 @@ class CardOut(BaseModel):
 class CardCreate(BaseModel):
     headword: str
     deck_id: int | None = None
+    card_type: str = "word"
     meaning_zh: str = ""
     example_en: str = ""
     example_zh: str = ""
@@ -167,9 +169,10 @@ class CardCreate(BaseModel):
 
 class CardFromSegment(BaseModel):
     segment_id: int
-    headword: str
+    headword: str = ""
     meaning_zh: str = ""
     pos: str = ""
+    card_type: str = "word"
 
 
 class CardPatch(BaseModel):
