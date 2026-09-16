@@ -412,6 +412,8 @@ def create_card(
         .first()
     )
     if existing:
+        if card_type == "word" and existing.headword != headword:
+            existing.headword = headword  # converge case variants to lowercase
         if body.example_en and not existing.example_en:
             existing.example_en = body.example_en
         if body.example_zh and not existing.example_zh:

@@ -43,6 +43,15 @@ def _sqlite_add_columns() -> None:
         }
         if card_cols and "card_type" not in card_cols:
             conn.execute(text("ALTER TABLE cards ADD COLUMN card_type VARCHAR(16) DEFAULT 'word'"))
+        if card_cols:
+            # converge legacy mixed-case word headwords to lowercase (ASCII lower is
+            # enough — word cards are English); idempotent, usually a no-op.
+            conn.execute(
+                text(
+                    "UPDATE cards SET headword = lower(headword) "
+                    "WHERE card_type = 'word' AND headword <> lower(headword)"
+                )
+            )
 
 
 def init_db() -> None:
